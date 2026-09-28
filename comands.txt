@@ -1,0 +1,5 @@
+.\.venv\Scripts\Activate.ps1
+eu rodo start
+dbt run --select prata_pedidos_exame --profiles-dir . --project-dir .
+http://127.0.0.1:8501/ << data wharehouse
+http://127.0.0.1:9001/?prefix=cuidado_integrado/ << bucket s3
