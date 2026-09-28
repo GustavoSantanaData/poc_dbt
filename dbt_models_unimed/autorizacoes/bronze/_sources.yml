@@ -1,0 +1,82 @@
+version: 2
+
+sources:
+  - name: autorizacoes
+    description: >
+      Origem operacional de guias de autorizacao, procedimentos TUSS e
+      historico de status. Dados lidos do PostgreSQL via catalogo federado do Trino.
+    database: postgres
+    schema: autorizacoes
+    loader: postgres
+    tables:
+      - name: procedimentos
+        description: Catalogo de procedimentos assistenciais (TUSS).
+        columns:
+          - name: id
+            description: Identificador interno do procedimento.
+          - name: codigo_tuss
+            description: Codigo TUSS.
+          - name: nome
+            description: Nome do procedimento.
+          - name: grupo
+            description: Agrupamento (Consultas, Cirurgia, Internacao, etc.).
+          - name: porte
+            description: Porte anestesico/cirurgico.
+          - name: exige_autorizacao
+            description: Indica se o item requer guia previa.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: guias_autorizacao
+        description: Guias de autorizacao emitidas para os beneficiarios.
+        columns:
+          - name: id
+            description: Identificador interno da guia.
+          - name: numero_guia
+            description: Numero da guia apresentado ao prestador.
+          - name: beneficiario_id
+            description: FK para cuidado_integrado.beneficiarios.
+          - name: procedimento_id
+            description: FK para autorizacoes.procedimentos.
+          - name: dt_solicitacao
+            description: Data de entrada da solicitacao.
+          - name: dt_autorizacao
+            description: Data da decisao de autorizacao.
+          - name: dt_validade
+            description: Validade da senha de autorizacao.
+          - name: status
+            description: Status atual da guia.
+          - name: senha
+            description: Senha liberada ao prestador (quando autorizada).
+          - name: qtd_solicitada
+            description: Quantidade solicitada.
+          - name: qtd_autorizada
+            description: Quantidade efetivamente autorizada.
+          - name: cid
+            description: CID-10 informado na guia.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: eventos_guia
+        description: Linha do tempo de mudancas de status da guia.
+        columns:
+          - name: id
+            description: Identificador interno do evento.
+          - name: guia_id
+            description: FK para autorizacoes.guias_autorizacao.
+          - name: dt_evento
+            description: Data/hora do evento.
+          - name: status_anterior
+            description: Status imediatamente anterior.
+          - name: status_novo
+            description: Status resultante do evento.
+          - name: usuario
+            description: Usuario ou sistema que registrou o evento.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.

@@ -1,0 +1,80 @@
+version: 2
+
+sources:
+  - name: resultados_exames
+    description: >
+      Origem operacional de pedidos e resultados de exames laboratoriais e de
+      imagem. Dados lidos do PostgreSQL via catalogo federado do Trino.
+    database: postgres
+    schema: resultados_exames
+    loader: postgres
+    tables:
+      - name: tipos_exame
+        description: Catalogo de tipos de exame (TUSS).
+        columns:
+          - name: id
+            description: Identificador interno do tipo de exame.
+          - name: codigo_tuss
+            description: Codigo TUSS do procedimento diagnostico.
+          - name: nome
+            description: Nome do exame.
+          - name: especialidade
+            description: Area (Patologia Clinica, Imagem, Cardiologia).
+          - name: material
+            description: Material biologico quando aplicavel.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: pedidos_exame
+        description: Solicitacoes de exames feitas pelos prestadores.
+        columns:
+          - name: id
+            description: Identificador interno do pedido.
+          - name: beneficiario_id
+            description: FK para cuidado_integrado.beneficiarios.
+          - name: tipo_exame_id
+            description: FK para resultados_exames.tipos_exame.
+          - name: dt_pedido
+            description: Data da solicitacao.
+          - name: medico_solicitante
+            description: Nome do medico solicitante.
+          - name: crm
+            description: CRM do medico solicitante.
+          - name: unidade
+            description: Unidade/laboratorio onde o exame foi encaminhado.
+          - name: status
+            description: Situacao do pedido (SOLICITADO, COLETADO, CONCLUIDO, CANCELADO).
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: resultados_exame
+        description: Resultados liberados pelos laboratorios.
+        columns:
+          - name: id
+            description: Identificador interno do resultado.
+          - name: pedido_id
+            description: FK para resultados_exames.pedidos_exame.
+          - name: dt_liberacao
+            description: Data/hora de liberacao do laudo.
+          - name: valor_numerico
+            description: Resultado numerico quando aplicavel.
+          - name: unidade_medida
+            description: Unidade de medida do resultado numerico.
+          - name: valor_referencia_min
+            description: Limite inferior da faixa de referencia.
+          - name: valor_referencia_max
+            description: Limite superior da faixa de referencia.
+          - name: valor_texto
+            description: Resultado descritivo (laudo textual).
+          - name: flag_alterado
+            description: Indica se o laboratorio marcou o exame como alterado.
+          - name: laboratorio
+            description: Nome do laboratorio executor.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.

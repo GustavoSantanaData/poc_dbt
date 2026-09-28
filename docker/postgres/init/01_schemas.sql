@@ -1,0 +1,4 @@
+CREATE SCHEMA IF NOT EXISTS cuidado_integrado;
+CREATE SCHEMA IF NOT EXISTS resultados_exames;
+CREATE SCHEMA IF NOT EXISTS autorizacoes;
+CREATE SCHEMA IF NOT EXISTS faturamento;

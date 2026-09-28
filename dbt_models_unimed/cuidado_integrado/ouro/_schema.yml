@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: dim_beneficiario
+    description: Dimensao de beneficiarios com o plano vigente.
+    columns:
+      - name: id_beneficiario
+        description: Chave do beneficiario.
+        tests: [not_null, unique]
+      - name: carteirinha
+        tests: [not_null]
+      - name: status_beneficiario
+        tests:
+          - accepted_values:
+              values: ['ATIVO', 'SUSPENSO', 'CANCELADO']
+
+  - name: fato_acompanhamento
+    description: Fato de contatos das equipes de cuidado integrado.
+    columns:
+      - name: id_acompanhamento
+        tests: [not_null, unique]
+      - name: id_beneficiario
+        tests: [not_null]
+
+  - name: mart_cuidado_integrado
+    description: Datamart consolidado de vidas em cuidado integrado.
+    columns:
+      - name: id_beneficiario
+        tests: [not_null, unique]

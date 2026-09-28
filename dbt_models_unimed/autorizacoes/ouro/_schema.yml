@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: fato_autorizacao
+    description: Fato de guias de autorizacao.
+    columns:
+      - name: id_guia
+        tests: [not_null, unique]
+      - name: numero_guia
+        tests: [not_null]
+
+  - name: mart_autorizacoes_sla
+    description: Datamart de SLA e volume de autorizacoes por status e grupo.
+    columns:
+      - name: status_guia
+        tests: [not_null]
+      - name: qtd_guias
+        tests: [not_null]

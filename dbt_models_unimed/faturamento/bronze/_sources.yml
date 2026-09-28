@@ -1,0 +1,86 @@
+version: 2
+
+sources:
+  - name: faturamento
+    description: >
+      Origem operacional de prestadores, contas medicas e itens faturados.
+      Dados lidos do PostgreSQL via catalogo federado do Trino.
+    database: postgres
+    schema: faturamento
+    loader: postgres
+    tables:
+      - name: prestadores
+        description: Rede credenciada que apresenta contas a operadora.
+        columns:
+          - name: id
+            description: Identificador interno do prestador.
+          - name: cnpj
+            description: CNPJ do prestador.
+          - name: razao_social
+            description: Razao social.
+          - name: tipo
+            description: Tipo (Hospital, Clinica, Laboratorio).
+          - name: municipio
+            description: Municipio do prestador.
+          - name: uf
+            description: UF do prestador.
+          - name: ativo
+            description: Flag de prestador ativo na rede.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: contas_medicas
+        description: Contas medicas apresentadas pelos prestadores.
+        columns:
+          - name: id
+            description: Identificador interno da conta.
+          - name: numero_conta
+            description: Numero da conta no prestador.
+          - name: guia_id
+            description: FK opcional para autorizacoes.guias_autorizacao.
+          - name: prestador_id
+            description: FK para faturamento.prestadores.
+          - name: competencia
+            description: Competencia de apresentacao no formato YYYY-MM.
+          - name: dt_emissao
+            description: Data de emissao da conta.
+          - name: valor_apresentado
+            description: Valor total apresentado.
+          - name: valor_glosado
+            description: Valor glosado na auditoria.
+          - name: valor_pago
+            description: Valor efetivamente pago.
+          - name: status
+            description: Status da conta (APRESENTADA, EM_ANALISE, PAGA, GLOSADA).
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: itens_conta
+        description: Itens que compoem cada conta medica.
+        columns:
+          - name: id
+            description: Identificador interno do item.
+          - name: conta_id
+            description: FK para faturamento.contas_medicas.
+          - name: procedimento_id
+            description: FK para autorizacoes.procedimentos.
+          - name: descricao
+            description: Descricao do item faturado.
+          - name: qtd
+            description: Quantidade faturada.
+          - name: valor_unitario
+            description: Valor unitario apresentado.
+          - name: valor_total
+            description: Valor total do item.
+          - name: glosa_flag
+            description: Indica se o item sofreu glosa.
+          - name: motivo_glosa
+            description: Motivo da glosa quando houver.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.

@@ -1,0 +1,15 @@
+unimed_poc:
+  target: dev
+  outputs:
+    dev:
+      type: trino
+      method: none
+      user: dbt
+      host: localhost
+      port: 8080
+      catalog: iceberg
+      schema: default
+      threads: 4
+      http_scheme: http
+      session_properties:
+        query_max_run_time: 1h

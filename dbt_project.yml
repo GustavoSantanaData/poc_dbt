@@ -1,0 +1,69 @@
+name: dbt_models_unimed
+version: "1.0.0"
+config-version: 2
+profile: unimed_poc
+require-dbt-version: [">=1.10.0", "<1.13.0"]
+
+model-paths: ["dbt_models_unimed"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+vars:
+  source_catalog: postgres
+
+models:
+  dbt_models_unimed:
+    +on_table_exists: drop
+    cuidado_integrado:
+      bronze:
+        +schema: cuidado_integrado_bronze
+        +materialized: table
+        +tags: ["bronze"]
+      prata:
+        +schema: cuidado_integrado_prata
+        +tags: ["prata"]
+      ouro:
+        +schema: cuidado_integrado_ouro
+        +tags: ["ouro"]
+    resultados_exames:
+      bronze:
+        +schema: resultados_exames_bronze
+        +materialized: table
+        +tags: ["bronze"]
+      prata:
+        +schema: resultados_exames_prata
+        +tags: ["prata"]
+      ouro:
+        +schema: resultados_exames_ouro
+        +tags: ["ouro"]
+    autorizacoes:
+      bronze:
+        +schema: autorizacoes_bronze
+        +materialized: table
+        +tags: ["bronze"]
+      prata:
+        +schema: autorizacoes_prata
+        +tags: ["prata"]
+      ouro:
+        +schema: autorizacoes_ouro
+        +tags: ["ouro"]
+    faturamento:
+      bronze:
+        +schema: faturamento_bronze
+        +materialized: table
+        +tags: ["bronze"]
+      prata:
+        +schema: faturamento_prata
+        +tags: ["prata"]
+      ouro:
+        +schema: faturamento_ouro
+        +tags: ["ouro"]

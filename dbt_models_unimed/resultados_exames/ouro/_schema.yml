@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: fato_resultado_exame
+    description: Fato de resultados laboratoriais e de imagem.
+    columns:
+      - name: id_resultado
+        tests: [not_null, unique]
+      - name: id_beneficiario
+        tests: [not_null]
+
+  - name: mart_exames_criticos
+    description: Datamart de exames fora da faixa de referencia.
+    columns:
+      - name: id_beneficiario
+        tests: [not_null]
+      - name: fl_fora_referencia
+        description: Sempre verdadeiro neste mart, pois filtra so exames alterados.

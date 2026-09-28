@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: fato_conta_medica
+    description: Fato de contas medicas apresentadas pelos prestadores.
+    columns:
+      - name: id_conta
+        tests: [not_null, unique]
+      - name: numero_conta
+        tests: [not_null]
+
+  - name: mart_faturamento_competencia
+    description: Datamart de faturamento agregado por competencia e prestador.
+    columns:
+      - name: sk_competencia_prestador
+        tests: [not_null, unique]
+      - name: competencia
+        tests: [not_null]

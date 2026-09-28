@@ -1,0 +1,129 @@
+version: 2
+
+sources:
+  - name: cuidado_integrado
+    description: >
+      Origem operacional do dominio de cuidado integrado (programas cronicos,
+      vinculos e acompanhamentos). Dados lidos do PostgreSQL via catalogo
+      federado do Trino.
+    database: postgres
+    schema: cuidado_integrado
+    loader: postgres
+    tables:
+      - name: planos
+        description: Planos de saude comercializados pela operadora.
+        columns:
+          - name: id
+            description: Identificador interno do plano.
+          - name: codigo
+            description: Codigo comercial do plano (ex. CLA-APT).
+          - name: nome
+            description: Nome de mercado do plano.
+          - name: tipo_contratacao
+            description: Tipo de contratacao (Adesao, Empresarial, Individual).
+          - name: acomodacao
+            description: Tipo de acomodacao hospitalar (Enfermaria/Apartamento).
+          - name: cobertura_odonto
+            description: Indica se o plano possui cobertura odontologica.
+          - name: ativo
+            description: Flag de plano vigente para comercializacao.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: beneficiarios
+        description: Beneficiarios (vidas) vinculados aos planos.
+        columns:
+          - name: id
+            description: Identificador interno do beneficiario.
+          - name: carteirinha
+            description: Numero da carteirinha Unimed.
+          - name: cpf
+            description: CPF do beneficiario (somente numeros ou mascarado).
+          - name: nome
+            description: Nome completo do beneficiario.
+          - name: dt_nascimento
+            description: Data de nascimento.
+          - name: sexo
+            description: Sexo informado na origem (pode vir despadronizado).
+          - name: plano_id
+            description: FK para cuidado_integrado.planos.
+          - name: status
+            description: Situacao cadastral (ATIVO, SUSPENSO, CANCELADO).
+          - name: dt_adesao
+            description: Data de adesao ao plano.
+          - name: municipio
+            description: Municipio de residencia.
+          - name: uf
+            description: UF de residencia.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: programas_cuidado
+        description: Catalogo de programas de cuidado integrado.
+        columns:
+          - name: id
+            description: Identificador interno do programa.
+          - name: codigo
+            description: Codigo curto do programa.
+          - name: nome
+            description: Nome do programa.
+          - name: tipo
+            description: Classificacao (Cronico, Materno, Geriatrico, etc.).
+          - name: descricao
+            description: Descricao funcional do programa.
+          - name: ativo
+            description: Flag de programa vigente.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: vinculos_programa
+        description: Relacao beneficiario x programa de cuidado.
+        columns:
+          - name: id
+            description: Identificador interno do vinculo.
+          - name: beneficiario_id
+            description: FK para cuidado_integrado.beneficiarios.
+          - name: programa_id
+            description: FK para cuidado_integrado.programas_cuidado.
+          - name: dt_inicio
+            description: Inicio da participacao no programa.
+          - name: dt_fim
+            description: Encerramento da participacao (nulo se vigente).
+          - name: status
+            description: Situacao do vinculo (ATIVO, ENCERRADO, SUSPENSO).
+          - name: risco
+            description: Classificacao de risco clinico (BAIXO, MEDIO, ALTO).
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.
+
+      - name: acompanhamentos
+        description: Contatos e evolucoes realizadas pelas equipes de cuidado.
+        columns:
+          - name: id
+            description: Identificador interno do acompanhamento.
+          - name: vinculo_id
+            description: FK para cuidado_integrado.vinculos_programa.
+          - name: dt_contato
+            description: Data/hora do contato com o beneficiario.
+          - name: canal
+            description: Canal utilizado (TELEFONE, APP, PRESENCIAL, DOMICILIAR).
+          - name: profissional
+            description: Nome do profissional que realizou o contato.
+          - name: especialidade
+            description: Especialidade do profissional.
+          - name: desfecho
+            description: Resultado do contato (ORIENTADO, ALERTA, ESTAVEL, AGENDADO).
+          - name: observacao
+            description: Texto livre da evolucao.
+          - name: created_at
+            description: Data/hora de criacao do registro na origem.
+          - name: updated_at
+            description: Data/hora da ultima atualizacao na origem.

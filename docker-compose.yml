@@ -1,0 +1,116 @@
+name: unimed-poc
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: unimed-postgres
+    environment:
+      POSTGRES_USER: unimed
+      POSTGRES_PASSWORD: unimed
+      POSTGRES_DB: unimed
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unimed -d unimed"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lakehouse
+
+  minio:
+    image: bitnamilegacy/minio:latest
+    container_name: unimed-minio
+    environment:
+      MINIO_ROOT_USER: unimed
+      MINIO_ROOT_PASSWORD: unimed123
+      MINIO_DEFAULT_BUCKETS: warehouse
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio_data:/bitnami/minio/data
+    networks:
+      lakehouse:
+        aliases:
+          - warehouse.minio
+
+  minio-browser:
+    build:
+      context: .
+      dockerfile: docker/minio-browser/Dockerfile
+    container_name: unimed-minio-browser
+    depends_on:
+      - minio
+    ports:
+      - "9001:9001"
+    environment:
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: unimed
+      MINIO_SECRET_KEY: unimed123
+      MINIO_BUCKET: warehouse
+    networks:
+      - lakehouse
+
+  iceberg-rest:
+    image: apache/iceberg-rest-fixture:1.10.1
+    container_name: unimed-iceberg-rest
+    hostname: iceberg-rest
+    depends_on:
+      minio:
+        condition: service_started
+    ports:
+      - "8181:8181"
+    environment:
+      AWS_ACCESS_KEY_ID: unimed
+      AWS_SECRET_ACCESS_KEY: unimed123
+      AWS_REGION: us-east-1
+      AWS_S3_ENDPOINT: http://minio:9000
+      CATALOG_WAREHOUSE: s3://warehouse/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://minio:9000
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+      CATALOG_S3_FORCE__PATH__STYLE: "true"
+      CATALOG_S3_ACCESS__KEY__ID: unimed
+      CATALOG_S3_SECRET__ACCESS__KEY: unimed123
+      AWS_S3_FORCE_PATH_STYLE: "true"
+    networks:
+      - lakehouse
+
+  trino:
+    image: trinodb/trino:476
+    container_name: unimed-trino
+    hostname: trino
+    depends_on:
+      postgres:
+        condition: service_healthy
+      iceberg-rest:
+        condition: service_started
+      minio:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docker/trino/catalog:/etc/trino/catalog:ro
+    environment:
+      AWS_ACCESS_KEY_ID: unimed
+      AWS_SECRET_ACCESS_KEY: unimed123
+      AWS_REGION: us-east-1
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/v1/info | grep -q '\"starting\":false'"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+    networks:
+      - lakehouse
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  lakehouse:
+    driver: bridge
