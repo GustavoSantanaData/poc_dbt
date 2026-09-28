@@ -107,6 +107,24 @@ services:
     networks:
       - lakehouse
 
+  snowsight:
+    build:
+      context: .
+      dockerfile: docker/snowsight/Dockerfile
+    container_name: unimed-snowsight
+    depends_on:
+      trino:
+        condition: service_healthy
+    ports:
+      - "8501:8501"
+    environment:
+      TRINO_HOST: trino
+      TRINO_PORT: "8080"
+      BIND_HOST: 0.0.0.0
+      PORT: "8501"
+    networks:
+      - lakehouse
+
 volumes:
   postgres_data:
   minio_data:

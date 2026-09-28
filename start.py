@@ -248,11 +248,9 @@ Object storage (MinIO)
   user: unimed  senha: unimed123
   bucket: warehouse (vazio ate o dbt run gravar as tabelas)
 
-Warehouse SQL (Trino)
-  Painel do cluster (metricas): http://localhost:8080
-  Console SQL no navegador:     python sql_ui.py  ->  http://localhost:8501
-  host: localhost  porta: 8080  catalogo: iceberg
-  user: dbt (sem senha)
+Warehouse SQL (Snowsight simulado no Trino)
+  Worksheet: http://localhost:8501
+  Painel Trino (metricas): http://localhost:8080
 
 Consultar a origem (Postgres via Trino):
   select * from postgres.cuidado_integrado.beneficiarios;
@@ -273,13 +271,14 @@ Parar o ambiente:
 def up() -> None:
     docker = find_docker()
     log(f"Usando Docker: {docker}")
-    log("Subindo Postgres, MinIO, Iceberg REST e Trino...")
+    log("Subindo Postgres, MinIO, Iceberg REST, Trino e Snowsight...")
     compose("up", "-d", "--build")
     wait_port("localhost", 5433, 90, "Postgres")
     wait_port("localhost", 9000, 90, "MinIO")
     wait_port("localhost", 9001, 90, "MinIO browser")
     wait_port("localhost", 8181, 90, "Iceberg REST")
     wait_trino()
+    wait_port("localhost", 8501, 120, "Snowsight")
     seed_postgres()
     create_warehouse_schemas()
     print_summary()
